@@ -1,10 +1,10 @@
-import { Application } from 'express';
+import { Router } from 'express';
 
 import auth from '#src/controllers/auth';
 import { validateBody } from '#src/middlewares/validateRequest';
 import { loginSchema } from '#src/schemas/auth';
 
-export default (app: Application) => {
+export default (app: Router) => {
   app.route('/auth/login')
     .post(validateBody(loginSchema), auth.login);
 };
