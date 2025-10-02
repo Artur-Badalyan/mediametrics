@@ -1,0 +1,13 @@
+Hello,
+
+This is a reminder for your booking:
+
+Details:
+- Booking ID: {{bookingId}}
+- Date: {{bookingDate}}
+- Time: {{bookingTime}}
+- Service: {{serviceName}}
+
+Need changes? Contact us anytime.
+
+– The MediaMetrics Team

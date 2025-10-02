@@ -1,7 +1,8 @@
 import swaggerJSDoc, { Options, SwaggerDefinition } from "swagger-jsdoc";
+import { schemas } from "./schemas";
 
 const swaggerDefinition: SwaggerDefinition = {
-  openapi: "3.1.0",
+  openapi: "3.0.3",
   info: {
     title: "Mediametrics APP APIs",
     version: "1.0.0",
@@ -12,21 +13,21 @@ const swaggerDefinition: SwaggerDefinition = {
       url: "http://localhost:4000/api",
     },
   ],
-  tags: [],
   components: {
     securitySchemes: {
-      cookieAuth: {
-        type: "apiKey",
-        in: "cookie",
-        name: "jwt",
-      },
-      api_key: {
-        type: "apiKey",
-        in: "header",
-        name: "api_key",
+      bearerAuth: {
+        type: "http",
+        scheme: "bearer",
+        bearerFormat: "JWT",
       },
     },
+    schemas,
   },
+  security: [
+    {
+      bearerAuth: [],
+    },
+  ],
 };
 
 const options: Options = {

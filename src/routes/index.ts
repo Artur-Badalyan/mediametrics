@@ -9,9 +9,9 @@ router.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 import auth from '#src/routes/auth';
 import users from '#src/routes/users';
-import company from '#src/routes/company';
+import company from '#src/routes/companies';
 import services from '#src/routes/services';
-import booking from '#src/routes/booking';
+import booking from '#src/routes/bookings';
 
 const routes = [
   auth,

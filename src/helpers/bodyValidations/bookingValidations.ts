@@ -1,4 +1,4 @@
-import { isSameDay } from '#src/helpers/utils';
+import moment from 'moment';
 import constants from '#src/constants';
 
 interface OpeningHours {
@@ -45,7 +45,7 @@ export function validateBookingDate(
 
   const nextDay = new Date(now);
   nextDay.setDate(now.getDate() + 1);
-  if (!settings.allowNextDay && isSameDay(bookingDate, nextDay)) {
+  if (!settings.allowNextDay && moment(bookingDate).isSame(nextDay, 'day')) {
     return {
       valid: false,
       errorCode: 'BOOKING_RULE_VIOLATION',

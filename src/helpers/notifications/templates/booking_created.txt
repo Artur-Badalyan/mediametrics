@@ -1,0 +1,13 @@
+Hello,
+
+Your booking has been successfully created.
+
+Details:
+- Booking ID: {{bookingId}}
+- Date: {{bookingDate}}
+- Time: {{bookingTime}}
+- Service: {{serviceName}}
+
+Thank you for choosing us!
+
+If you have any questions, please contact our support team.

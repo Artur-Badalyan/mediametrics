@@ -1,6 +1,6 @@
 export default {
   USERS_ROLES: {
-    ENUM: ['admin', 'staff', 'customer'] as const,
+    ENUM: ['admin', 'staff', 'customer'] as string[],
     ADMIN: 'admin',
     STAFF: 'staff',
     CUSTOMER: 'customer'

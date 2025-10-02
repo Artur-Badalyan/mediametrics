@@ -1,20 +1,20 @@
 import { Request, Response } from 'express';
+import moment from 'moment';
 
 import { prisma } from '#src/app';
 import { formatError } from '#src/helpers/error';
 import { logAction } from '#src/services/auditLogService';
 import constants from '#src/constants';
-import { validateBookingDate } from '#src/helpers/validations/bookingValidations';
-
+import { validateBookingDate } from '#src/helpers/bodyValidations/bookingValidations';
+import { notifyBookingCreated } from '#src/helpers/notifications/adapters';
+import log from '#src/helpers/logger/logger';
 
 /**
  * @swagger
- * /booking:
+ * /bookings:
  *   get:
  *     summary: Get all bookings for the current company
  *     tags: [Booking]
- *     security:
- *       - bearerAuth: []
  *     responses:
  *       200:
  *         description: List of bookings
@@ -37,7 +37,21 @@ async function get(req: Request, res: Response) {
   try {
     const bookings = await prisma.booking.findMany({
       where: { companyId },
-      include: { user: true, service: true },
+      include: {
+        user: {
+          select: {
+            id: true,
+            email: true,
+          }
+        },
+        service: {
+          select: {
+            id: true,
+            name: true,
+            description: true
+          }
+        }
+      },
     });
     res.json(bookings);
   } catch (e) {
@@ -47,32 +61,18 @@ async function get(req: Request, res: Response) {
   }
 }
 
-
 /**
  * @swagger
- * /booking:
+ * /bookings:
  *   post:
  *     summary: Create a new booking
  *     tags: [Booking]
- *     security:
- *       - bearerAuth: []
  *     requestBody:
  *       required: true
  *       content:
  *         application/json:
  *           schema:
- *             type: object
- *             required:
- *               - serviceId
- *               - datetime
- *             properties:
- *               serviceId:
- *                 type: string
- *                 description: Service ID to book
- *               datetime:
- *                 type: string
- *                 format: date-time
- *                 description: Booking date and time (ISO 8601)
+ *             $ref: '#/components/schemas/BookingCreate'
  *     responses:
  *       201:
  *         description: Booking created
@@ -96,7 +96,7 @@ async function get(req: Request, res: Response) {
 export async function create(req: Request, res: Response) {
   const { serviceId, datetime } = req.body;
   // @ts-ignore
-  const { id: userId, companyId } = req.user;
+  const { id: userId, email, companyId } = req.user;
   try {
     const service = await prisma.service.findUnique({
       where: {
@@ -116,11 +116,7 @@ export async function create(req: Request, res: Response) {
     const bookingDate = new Date(datetime);
     const now = new Date();
 
-    const validation = validateBookingDate(
-      settings.booking as any,
-      bookingDate,
-      now
-    );
+    const validation = validateBookingDate(settings, bookingDate, now);
     if (!validation.valid) {
       return res
         .status(400)
@@ -135,10 +131,34 @@ export async function create(req: Request, res: Response) {
         datetime: bookingDate,
       },
     });
+    await prisma.auditLog.create({
+        data: {
+          userId,
+          action: constants.LOG_ACTION_TYPES.CREATE,
+          targetType: "BOOKING",
+          targetId: booking.id,
+          meta: { serviceId, datetime },
+        },
+    });
 
-    logAction(userId, constants.LOG_ACTION_TYPES.CREATE, 'BOOKING', booking.id, { serviceId, datetime });
+    const notifyData = {
+      bookingId: booking.id,
+      bookingDate: moment(booking.datetime).format('YYYY-MM-DD'),
+      bookingTime: moment(booking.datetime).format('HH:mm'),
+      serviceName: service.name,
+    };
+    notifyBookingCreated(email, notifyData);
+
+    logAction(
+      userId,
+      constants.LOG_ACTION_TYPES.CREATE,
+      'BOOKING',
+      booking.id,
+      { serviceId, datetime }
+    );
     res.status(201).json(booking);
   } catch (e) {
+    log.error('controllers::booking::create', e);
     res
       .status(400)
       .json(formatError('BOOKING_CREATE_ERROR', 'Booking not created', e));

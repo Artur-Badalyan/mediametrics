@@ -12,8 +12,7 @@ import constants from '#src/constants';
  *   post:
  *     summary: Login a user
  *     description: Authenticate user and return a JWT token
- *     tags:
- *       - Auth
+ *     tags: [Auth]
  *     requestBody:
  *       required: true
  *       content:
@@ -27,11 +26,11 @@ import constants from '#src/constants';
  *               email:
  *                 type: string
  *                 format: email
- *                 example: user@example.com
+ *                 example: admin@demo.com
  *               password:
  *                 type: string
  *                 format: password
- *                 example: mysecretpassword
+ *                 example: password123
  *     responses:
  *       '200':
  *         description: Successful operation

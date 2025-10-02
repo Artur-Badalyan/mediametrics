@@ -48,6 +48,7 @@ model Booking {
   company     Company  @relation(fields: [companyId], references: [id])
   companyId   String
   datetime    DateTime
+  isRemindered  Boolean  @default(false)
   createdAt   DateTime @default(now())
 }
 

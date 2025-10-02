@@ -4,7 +4,9 @@ import service from '#src/controllers/services';
 import { authenticateJWT, requireRole } from '#src/middlewares/authMiddleware';
 import constants from '#src/constants';
 
+const { ADMIN, STAFF } = constants.USERS_ROLES;
+
 export default (app: Application) => {
   app.route('/services')
-    .post(authenticateJWT, requireRole(constants.USERS_ROLES.ADMIN), service.create);
+    .post(authenticateJWT, requireRole([ADMIN, STAFF]), service.create);
 };

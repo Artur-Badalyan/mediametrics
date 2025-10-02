@@ -3,8 +3,7 @@ import jwt from "jsonwebtoken";
 
 import { prisma } from "#src/app";
 import { User } from "@prisma/client";
-
-const JWT_SECRET = process.env.JWT_SECRET || "media-metrics-secret";
+import settings from "#src/settings";
 
 export async function authenticate(email: string, password: string): Promise<{ user: User; token: string } | null> {
   const user = await prisma.user.findUnique({ where: { email } });
@@ -20,7 +19,7 @@ export async function authenticate(email: string, password: string): Promise<{ u
       role: user.role,
       companyId: user.companyId
     },
-    JWT_SECRET,
+    settings.jwtSecret,
     { expiresIn: "1d" }
   );
 
